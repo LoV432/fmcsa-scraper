@@ -1,0 +1,19 @@
+{
+  "name": "fmcsa-scraper",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "get-mcs.ts",
+  "scripts": {
+    "start": "tsx get-mcs.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jsdom": "^25.0.1",
+    "tsx": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7"
+  }
+}
