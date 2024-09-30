@@ -17,9 +17,17 @@ try {
 	fs.mkdirSync("./drivers_mc");
 } catch {}
 
+let checkLastMC: string | null = null;
+try {
+	checkLastMC = fs.readFileSync("./drivers_mc/last-mc.txt", "utf8");
+	if (checkLastMC) {
+		console.log(`\x1b[32mLast MC is ${checkLastMC} \x1b[0m`);
+	}
+} catch {}
+
 const allOldMCs = fs.readdirSync("./drivers_mc");
 
-let date = new Date();
+let date = new Date(checkLastMC || new Date().toDateString());
 
 for (let i = 0; i < 30; i++) {
 	const formatedDate = formatDate(date);
@@ -42,6 +50,7 @@ for (let i = 0; i < 30; i++) {
 		continue;
 	}
 	fs.writeFileSync(`./drivers_mc/MC-${formatedDate}.csv`, data.join("\n") + "\n" + data2.join("\n"));
+	fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
 	console.log(`\x1b[32mCompleted MC-${formatedDate} \x1b[0m`);
 	date.setDate(date.getDate() - 1);
 }
