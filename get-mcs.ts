@@ -40,6 +40,11 @@ if (isNaN(totalDaysNumber)) {
 }
 
 for (let i = 0; i < totalDaysNumber; i++) {
+	if (date.getDay() === 0 || date.getDay() === 6) {
+		date.setDate(date.getDate() - 1);
+		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
+		continue;
+	}
 	const formatedDate = formatDate(date);
 	if (allOldMCs.includes(`MC-${formatedDate}.csv`)) {
 		date.setDate(date.getDate() - 1);
