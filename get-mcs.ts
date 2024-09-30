@@ -17,12 +17,19 @@ try {
 	fs.mkdirSync("./drivers_mc");
 } catch {}
 
+const allOldMCs = fs.readdirSync("./drivers_mc");
+
 let date = new Date();
 
 for (let i = 0; i < 30; i++) {
-	const pageText = await fetchMCs(formatDate(date));
+	const formatedDate = formatDate(date);
+	if (allOldMCs.includes(`MC-${formatedDate}.csv`)) {
+		date.setDate(date.getDate() - 1);
+		continue;
+	}
+	const pageText = await fetchMCs(formatedDate);
 	if (!pageText) {
-		console.error(`\x1b[31mPage failed to load for MC-${formatDate(date)} \x1b[0m`);
+		console.error(`\x1b[31mPage failed to load for MC-${formatedDate} \x1b[0m`);
 		date.setDate(date.getDate() - 1);
 		continue;
 	}
@@ -30,12 +37,12 @@ for (let i = 0; i < 30; i++) {
 	const data = await extractMC("body > font > table:nth-child(12)", parsedPageText);
 	const data2 = await extractMC("body > font > table:nth-child(16)", parsedPageText);
 	if (data.length === 0 && data2.length === 0) {
-		console.log(`\x1b[31mNo data for MC-${formatDate(date)} \x1b[0m`);
+		console.log(`\x1b[31mNo data for MC-${formatedDate} \x1b[0m`);
 		date.setDate(date.getDate() - 1);
 		continue;
 	}
-	fs.writeFileSync(`./drivers_mc/MC-${formatDate(date)}.csv`, data.join("\n") + "\n" + data2.join("\n"));
-	console.log(`\x1b[32mCompleted MC-${formatDate(date)} \x1b[0m`);
+	fs.writeFileSync(`./drivers_mc/MC-${formatedDate}.csv`, data.join("\n") + "\n" + data2.join("\n"));
+	console.log(`\x1b[32mCompleted MC-${formatedDate} \x1b[0m`);
 	date.setDate(date.getDate() - 1);
 }
 
