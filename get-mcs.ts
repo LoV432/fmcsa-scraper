@@ -1,5 +1,6 @@
 import fs from "fs";
 import { JSDOM } from "jsdom";
+import prompt from "prompt-sync";
 
 try {
 	const locationFetch = await fetch("https://ip.monib.xyz/all");
@@ -29,7 +30,16 @@ const allOldMCs = fs.readdirSync("./drivers_mc");
 
 let date = new Date(checkLastMC || new Date().toDateString());
 
-for (let i = 0; i < 30; i++) {
+const totalDays = prompt({sigint: true})("How many days back do you want to go?: ");
+let totalDaysNumber = Number(totalDays);
+if (isNaN(totalDaysNumber)) {
+	totalDaysNumber = 30;
+	console.log(`\x1b[31mInvalid input. Defaulting to ${totalDaysNumber} days back. \x1b[0m`);
+} else {
+	console.log(`\x1b[32mGoing back ${totalDaysNumber} days. \x1b[0m`);
+}
+
+for (let i = 0; i < totalDaysNumber; i++) {
 	const formatedDate = formatDate(date);
 	if (allOldMCs.includes(`MC-${formatedDate}.csv`)) {
 		date.setDate(date.getDate() - 1);
@@ -38,6 +48,7 @@ for (let i = 0; i < 30; i++) {
 	const pageText = await fetchMCs(formatedDate);
 	if (!pageText) {
 		console.error(`\x1b[31mPage failed to load for MC-${formatedDate} \x1b[0m`);
+		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
 		date.setDate(date.getDate() - 1);
 		continue;
 	}
@@ -46,6 +57,7 @@ for (let i = 0; i < 30; i++) {
 	const data2 = await extractMC("body > font > table:nth-child(16)", parsedPageText);
 	if (data.length === 0 && data2.length === 0) {
 		console.log(`\x1b[31mNo data for MC-${formatedDate} \x1b[0m`);
+		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
 		date.setDate(date.getDate() - 1);
 		continue;
 	}

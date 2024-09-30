@@ -11,9 +11,11 @@
   "description": "",
   "dependencies": {
     "jsdom": "^25.0.1",
+    "prompt-sync": "^4.2.0",
     "tsx": "^4.7.2"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.7"
+    "@types/jsdom": "^21.1.7",
+    "@types/prompt-sync": "^4.2.3"
   }
 }
