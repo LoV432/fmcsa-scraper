@@ -1,6 +1,7 @@
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import prompt from "prompt-sync";
+import {userAgents} from "./user-agents";
 
 try {
 	const locationFetch = await fetch("https://ip.monib.xyz/all");
@@ -30,8 +31,17 @@ const allOldMCs = fs.readdirSync("./drivers_mc");
 
 let date = new Date(checkLastMC || new Date().toDateString());
 
-const totalDays = prompt({sigint: true})("How many days back do you want to go?: ");
-let totalDaysNumber = Number(totalDays);
+const batchSize = prompt({sigint: true})("How many requests to make at once? Defaults to 5: ");
+let batchSizeNumber = parseInt(batchSize);
+if (isNaN(batchSizeNumber)) {
+	batchSizeNumber = 5;
+	console.log(`\x1b[31mInvalid input. Defaulting to ${batchSizeNumber} requests at once. \x1b[0m`);
+} else {
+	console.log(`\x1b[32mGoing to make ${batchSizeNumber} requests at once. \x1b[0m`);
+}
+
+const totalDays = prompt({sigint: true})("How many days back do you want to go? Defaults to 30: ");
+let totalDaysNumber = parseInt(totalDays);
 if (isNaN(totalDaysNumber)) {
 	totalDaysNumber = 30;
 	console.log(`\x1b[31mInvalid input. Defaulting to ${totalDaysNumber} days back. \x1b[0m`);
@@ -39,37 +49,42 @@ if (isNaN(totalDaysNumber)) {
 	console.log(`\x1b[32mGoing back ${totalDaysNumber} days. \x1b[0m`);
 }
 
-for (let i = 0; i < totalDaysNumber; i++) {
-	if (date.getDay() === 0 || date.getDay() === 6) {
+while (totalDaysNumber > 0) {
+	const batchPromises: Promise<void>[] = [];
+	while (totalDaysNumber > 0 && batchPromises.length < batchSizeNumber) {
+		totalDaysNumber--;
+		if (date.getDay() === 0 || date.getDay() === 6) {
+			date.setDate(date.getDate() - 1);
+			continue;
+		}
+
+		const formatedDate = formatDate(date)
+		if (allOldMCs.includes(`MC-${formatedDate}.csv`)) {
+			date.setDate(date.getDate() - 1);
+			continue;
+		}
+		batchPromises.push(fetchAndProcessMC(formatedDate));
 		date.setDate(date.getDate() - 1);
-		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
-		continue;
 	}
-	const formatedDate = formatDate(date);
-	if (allOldMCs.includes(`MC-${formatedDate}.csv`)) {
-		date.setDate(date.getDate() - 1);
-		continue;
-	}
+	await Promise.all(batchPromises);
+	fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
+}
+
+async function fetchAndProcessMC(formatedDate: string) {
 	const pageText = await fetchMCs(formatedDate);
 	if (!pageText) {
 		console.error(`\x1b[31mPage failed to load for MC-${formatedDate} \x1b[0m`);
-		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
-		date.setDate(date.getDate() - 1);
-		continue;
+		return;
 	}
 	const parsedPageText = new JSDOM(pageText).window.document;
 	const data = await extractMC("body > font > table:nth-child(12)", parsedPageText);
 	const data2 = await extractMC("body > font > table:nth-child(16)", parsedPageText);
 	if (data.length === 0 && data2.length === 0) {
 		console.log(`\x1b[31mNo data for MC-${formatedDate} \x1b[0m`);
-		fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
-		date.setDate(date.getDate() - 1);
-		continue;
+		return;
 	}
 	fs.writeFileSync(`./drivers_mc/MC-${formatedDate}.csv`, data.join("\n") + "\n" + data2.join("\n"));
-	fs.writeFileSync("./drivers_mc/last-mc.txt", date.toDateString());
 	console.log(`\x1b[32mCompleted MC-${formatedDate} \x1b[0m`);
-	date.setDate(date.getDate() - 1);
 }
 
 
@@ -79,6 +94,7 @@ async function fetchMCs(dateString: string) {
 			method: "POST",
 			headers: {
 				"Content-Type": "content-type: multipart/form-data",
+				"User-Agent": userAgents[Math.floor(Math.random() * userAgents.length)],
 			},
 			body: `pd_date=${dateString}&pv_vpath=LIVIEW`,
 		};
