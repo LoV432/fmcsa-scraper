@@ -22,11 +22,11 @@ export type driver = {
     "Operation Classification": string[];
     "Cargo Carried": string[];
     "Vehicle Type Breakdown": VehicleTypeBreakdown[];
-}
+};
 
 export type VehicleTypeBreakdown = {
     "Vehicle Type": string;
     Owned: string;
     "Term Leased": string;
     "Trip Leased": string;
-}
+};
