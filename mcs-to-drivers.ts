@@ -18,7 +18,8 @@ try {
     fs.mkdirSync("./drivers_data");
 } catch {}
 
-const allCsvFiles = fs.readdirSync("./drivers_mc");
+let allCsvFiles = fs.readdirSync("./drivers_mc/");
+allCsvFiles = allCsvFiles.filter((file) => file.endsWith(".csv"));
 let sanatizedMCs: string[][] = [];
 let driversData: { [key: string]: any }[] = [];
 const batchSize = 5;
@@ -56,6 +57,7 @@ for (const csvName of allCsvFiles) {
         `./drivers_data/${csvName.split(".")[0]}.json`,
         JSON.stringify(driversData, null, 2)
     );
+    fs.renameSync(`./drivers_mc/${csvName}`, `./drivers_mc/${csvName}.bak`);
     console.log(
         `\n\n========== ${csvName} has been processed with ${driversData.length} drivers. ==========\n\n`
     );
