@@ -241,6 +241,9 @@ async function fetchDriverData(usdot: number) {
         const request = await fetch(
             `https://ai.fmcsa.dot.gov/SMS/Carrier/${usdot}/CarrierRegistration.aspx`
         );
+        if (!request.ok) {
+            return "Request was blocked";
+        }
         const response = await request.text();
         return response;
     } catch (error) {
