@@ -95,7 +95,17 @@ async function getDriverData(MCNumber: string) {
         console.error(`\x1b[31mNo data for MC-${MCNumber} \x1b[0m`);
         return;
     }
-    const driverDataRequest = await fetchDriverData(usdot);
+    
+    let driverDataRequest = await fetchDriverData(usdot);
+    while (driverDataRequest === "Request was blocked") {
+        console.error(
+            `\x1b[31mRequest was blocked for MC-${MCNumber}. Retrying in ${retryTime} minutes \x1b[0m`
+        );
+        // This will hault the script for minium of 5 minutes after a block is detected
+        await new Promise((resolve) => setTimeout(resolve, 60000 * retryTime));
+        //retryTime++;
+        driverDataRequest = await fetchDriverData(usdot);
+    }
     if (!driverDataRequest) {
         console.error(
             `\x1b[31mNo registration box for MC-${MCNumber} USDOT-${usdot} \x1b[0m`
@@ -237,6 +247,6 @@ async function fetchDriverData(usdot: number) {
         console.error(
             `\x1b[31mError fetching driver data for USDOT-${usdot}. Your internet connection may be down. \x1b[0m`
         );
-        return null;
+        return "Request was blocked";
     }
 }
