@@ -221,7 +221,8 @@ async function fetchUSDOT(currentMC: string) {
         console.error(
             `\x1b[31mError fetching USDOT for MC-${currentMC}. Your internet connection may be down. \x1b[0m`
         );
-        return null;
+        // This will hault the script for minium of 5 minutes if the request failed for any reason
+        return "Request was blocked";
     }
 }
 
