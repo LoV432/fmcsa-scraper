@@ -74,7 +74,7 @@ async function getDriverData(MCNumber: string) {
         );
         // This will hault the script for minium of 5 minutes after a block is detected
         await new Promise((resolve) => setTimeout(resolve, 60000 * retryTime));
-        retryTime++;
+        //retryTime++;
         USDOTRequestResponse = await fetchUSDOT(MCNumber);
     }
     if (!USDOTRequestResponse) {
