@@ -7,7 +7,8 @@ try {
 
 const allDrivers = fs.readdirSync("./drivers_data");
 
-let csv = "DATE,MC,USDOT,FULL_NAME,EMAIL,PHONE,ADDRESS,DRIVERS,POWER UNITS,CARRIER OPERATION,Straight Trucks,Truck Tractors,Trailers*,Hazmat Cargo Tank Trailers*,Hazmat Cargo Tank Trucks,Motor Coach,School Bus 1-8*,School Bus 9-15,School Bus 16+,Mini Bus 16+,Van 1-8*,Van 9-5,Limousine 1-8*,Limousine 9-15,Limousine 16+";
+let csv = "INDEX,DATE,MC,USDOT,FULL_NAME,EMAIL,PHONE,ADDRESS,DRIVERS,POWER UNITS,CARRIER OPERATION,Straight Trucks,Truck Tractors,Trailers*,Hazmat Cargo Tank Trailers*,Hazmat Cargo Tank Trucks,Motor Coach,School Bus 1-8*,School Bus 9-15,School Bus 16+,Mini Bus 16+,Van 1-8*,Van 9-5,Limousine 1-8*,Limousine 9-15,Limousine 16+";
+let i = 0;
 allDrivers.forEach((file) => {
     const drivers = JSON.parse(
         fs.readFileSync(`./drivers_data/${file}`, "utf8")
@@ -15,7 +16,7 @@ allDrivers.forEach((file) => {
 
     for (const driver of drivers) {
         try {
-            
+            const index = i++;
             const date = driver["MCS-150 Date"] || "";
             const mc = driver["MC Number"] || "";
             const USDOT = driver["U.S. DOT#"] || "";
@@ -41,7 +42,7 @@ allDrivers.forEach((file) => {
             const van2 = driver["Vehicle Type Breakdown"][12]["Owned"].replace(/,/g, "") || "";
             const limousine1 = driver["Vehicle Type Breakdown"][13]["Owned"].replace(/,/g, "") || "";
             const limousine2 = driver["Vehicle Type Breakdown"][14]["Owned"].replace(/,/g, "") || "";
-            csv += `\n${date},${mc},${USDOT},${legalName},${email},${phone},${address},${drivers},${powerUnits},${carrierOperation},${straightTrucks},${truckTractors},${trailers},${hazmatTrailers},${hazmatTrucks},${motorCoach},${schoolBus1},${schoolBus2},${schoolBus3},${miniBus1},${miniBus2},${van1},${van2},${limousine1},${limousine2}`;
+            csv += `\n${i},${date},${mc},${USDOT},${legalName},${email},${phone},${address},${drivers},${powerUnits},${carrierOperation},${straightTrucks},${truckTractors},${trailers},${hazmatTrailers},${hazmatTrucks},${motorCoach},${schoolBus1},${schoolBus2},${schoolBus3},${miniBus1},${miniBus2},${van1},${van2},${limousine1},${limousine2}`;
         } catch (e) {
             console.log(driver);
             console.log(e);
