@@ -5,10 +5,10 @@ export type driver = {
     "Legal Name": string;
     "DBA Name": string;
     "U.S. DOT#": string;
-    Address: string;
-    Telephone: string;
-    Fax: string;
-    Email: string;
+    Address?: string;
+    Telephone?: string;
+    Fax?: string;
+    Email?: string;
     "Vehicle Miles Traveled": string;
     "VMT Year": string;
     "Power Units": string;
